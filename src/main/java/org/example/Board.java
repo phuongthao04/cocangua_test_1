@@ -118,10 +118,6 @@ public class Board extends JFrame {
         setVisible(true);
 
         // Đồng bộ trạng thái nhạc trong Board
-        audioState.setMusicEnabled(musicEnabled); // Đảm bảo trạng thái được áp dụng
-    }
-
-    public static void main(String[] args) {
-        new Board(true, false);
+        audioState.setMusicEnabled(musicEnabled);
     }
 }

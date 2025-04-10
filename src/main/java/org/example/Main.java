@@ -5,6 +5,6 @@ import javax.swing.*;
 public class Main {
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new StartScreen()); // Gọi màn hình bắt đầu
+        SwingUtilities.invokeLater(() -> new StartScreen());
     }
 }
