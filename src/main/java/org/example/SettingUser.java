@@ -3,6 +3,9 @@ package org.example;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class SettingUser extends JFrame {
     private JButton btnStart, btnSettings, btnRules;
@@ -11,6 +14,7 @@ public class SettingUser extends JFrame {
     private int[] playerStates = {0, 0, 0, 0};
     private JPanel rulesPanel;
     private AudioState audioState;
+    List<PlayerInfo> players = new ArrayList<PlayerInfo>();
     private String[] iconPaths = {
             "images/img_user/icons/user.png",
             "images/img_user/icons/cpu.png",
@@ -37,8 +41,9 @@ public class SettingUser extends JFrame {
         playerNames = new JTextField[4];
         Color[] colors = {
                 new Color(0xb5, 0xdd, 0xff),
-                new Color(0xff, 0xa8, 0xaa),
                 new Color(0xcc, 0xed, 0xd1),
+                new Color(0xff, 0xa8, 0xaa),
+
                 new Color(0xff, 0xda, 0xc2)
         };
 
@@ -51,7 +56,7 @@ public class SettingUser extends JFrame {
             playerButtons[i].setBackground(colors[i]);
             playerButtons[i].setFocusPainted(false);
 
-            playerNames[i] = new JTextField("NGƯỜI CHƠI " + (i + 1), 15);
+            playerNames[i] = new JTextField("PLAYER " + (i + 1), 15);
             playerNames[i].setFont(new Font("Segoe UI", Font.BOLD, 16));
             playerNames[i].setPreferredSize(new Dimension(100, 45));
             playerNames[i].setBackground(colors[i]);
@@ -169,12 +174,12 @@ public class SettingUser extends JFrame {
 
         switch (playerStates[index]) {
             case 0:
-                playerNames[index].setText("NGƯỜI CHƠI " + (index + 1));
+                playerNames[index].setText("PLAYER " + (index + 1));
                 playerNames[index].setEditable(true);
                 playerNames[index].setForeground(Color.BLACK);
                 break;
             case 1:
-                playerNames[index].setText("CHƠI VỚI MÁY");
+                playerNames[index].setText("BOT");
                 playerNames[index].setEditable(false);
                 playerNames[index].setForeground(Color.GRAY);
                 break;
@@ -184,18 +189,62 @@ public class SettingUser extends JFrame {
                 playerNames[index].setForeground(Color.GRAY);
                 break;
         }
+
+        checkStartButtonState();
+    }
+
+    private void checkStartButtonState() {
+        int cpuCount = 0;
+        int t = 0;
+        for (int i = 0; i < 4; i++) {
+            if (playerStates[i] == 2) {
+                cpuCount++;
+            }
+            if (playerStates[i] == 0) {
+                t++;
+            }
+
+        }
+
+        if (cpuCount >= 3||t==0) {
+            btnStart.setEnabled(false);
+        } else {
+            btnStart.setEnabled(true);
+        }
     }
 
     private void startGame() {
-        SwingUtilities.invokeLater(() -> {
-            new Board(audioState.isMusicEnabled(), audioState.isSoundEnabled());
-            this.dispose();  // Đóng cửa sổ hiện tại sau khi bắt đầu game
-        });
+        players.clear();  // Xóa danh sách người chơi trước khi thêm mới
+
+        Color[] playerColors = {
+                new Color(66, 133, 244),
+                new Color(52, 168, 83),
+                new Color(219, 68, 55),
+                new Color(250, 144, 58)
+        };
+
+        for (int i = 0; i < 4; i++) {
+            String name = playerNames[i].getText().trim();
+            boolean isCPU = playerStates[i] == 2;
+
+
+            // Kiểm tra để tránh lỗi vượt qua chỉ số
+            if (i >= playerStates.length || i >= playerNames.length) {
+                continue;  // Bỏ qua nếu có lỗi chỉ số
+            }
+
+            players.add(new PlayerInfo(name, playerStates[i], playerColors[i]));
+        }
+
+
+        new Board(audioState.isMusicEnabled(), audioState.isSoundEnabled(), players);
+        this.dispose();
     }
     public void setAudioSettings(boolean musicEnabled, boolean soundEnabled) {
         audioState.setMusicEnabled(musicEnabled);
         audioState.setSoundEnabled(soundEnabled);
     }
+
     private ImageIcon loadIcon(String path, int width, int height) {
         URL imageUrl = getClass().getClassLoader().getResource(path);
         if (imageUrl != null) {
@@ -209,10 +258,6 @@ public class SettingUser extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            SettingUser game = new SettingUser();
-            game.setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new SettingUser().setVisible(true));
     }
 }
-
