@@ -75,7 +75,8 @@ public class StartScreen extends JFrame {
         setVisible(true); // Hiển thị cửa sổ
     }
 
-    public static void main(String[] args) {
-        new StartScreen();
-    }
+   public static void main(String[] args) {
+       new StartScreen();
+   }
+
 }

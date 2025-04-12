@@ -9,6 +9,8 @@ public class SettingUser extends JFrame {
     private JButton[] playerButtons;
     private JTextField[] playerNames;
     private int[] playerStates = {0, 0, 0, 0};
+    private JPanel rulesPanel;
+    private AudioState audioState;
     private String[] iconPaths = {
             "images/img_user/icons/user.png",
             "images/img_user/icons/cpu.png",
@@ -16,6 +18,8 @@ public class SettingUser extends JFrame {
     };
 
     public SettingUser() {
+        audioState = AudioState.getInstance();
+
         setTitle("Cờ Cá Ngựa");
         setSize(400, 650);
         setResizable(false);
@@ -93,9 +97,70 @@ public class SettingUser extends JFrame {
         background.add(wrapperPanel, BorderLayout.CENTER);
         setContentPane(background);
 
-        btnSettings.addActionListener(e -> showSettings());
-        btnRules.addActionListener(e -> showRules());
         btnStart.addActionListener(e -> startGame());
+
+        btnSettings.addActionListener(e ->
+                new AudioUI(this, audioState.isMusicEnabled(), audioState.isSoundEnabled()).setVisible(true)
+        );
+
+        btnRules.addActionListener(e -> rulesPanel.setVisible(true));
+
+        createRulesPanel();
+    }
+
+    private void createRulesPanel() {
+        rulesPanel = new JPanel(null);
+        rulesPanel.setBounds(0, 0, getWidth(), getHeight());
+        rulesPanel.setBackground(new Color(100, 189, 212));
+        rulesPanel.setVisible(false);
+
+        JPanel dialog = new JPanel();
+        dialog.setLayout(null);
+        dialog.setBounds(30, 20, 320, 520);
+        dialog.setBackground(Color.WHITE);
+        dialog.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 108, 108), 8, true),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+
+        JEditorPane rulesText = new JEditorPane();
+        rulesText.setContentType("text/html");
+        rulesText.setEditable(false);
+        rulesText.setText(
+                "<html><body style='font-family:Segoe UI; font-size:11px; color:#cc0000;'>"
+                        + "<h2 style='text-align:center; color:#8B0000;'>Luật chơi</h2>"
+                        + "<table style='width:100%;'>"
+                        + "<tr><td><b>Tung xúc xắc:</b></td><td>Ai tung được \"1\", \"6\", cặp số giống nhau (1-1, 2-2..., 6-6) thì được tung tiếp.</td></tr>"
+                        + "<tr><td><b>Ra quân:</b></td><td>Cần tung được \"1\", \"6\", hoặc cặp số giống nhau mới ra quân.</td></tr>"
+                        + "<tr><td><b>Di chuyển quân:</b></td><td>"
+                        + "Đi đúng số bước theo kết quả xúc xắc.<br>"
+                        + "Không được vượt một quân khác nếu khoảng cách không đủ.<br>"
+                        + "\"Đá\" quân đối phương nếu đi đúng số bước vào vị trí của quân đó.</td></tr>"
+                        + "<tr><td><b>Về chuồng & vào chuồng:</b></td><td>"
+                        + "Đi hết 1 vòng về đến cửa chuồng.<br>"
+                        + "Tung số tương ứng để vào chuồng theo thứ tự từ 3→6.<br>"
+                        + "Có thể bỏ lượt nếu muốn chờ tung số cao hơn.</td></tr>"
+                        + "<tr><td><b>Thắng cuộc:</b></td><td>"
+                        + "Ai đưa đủ 4 quân vào chuồng theo thứ tự (6, 5, 4, 3) trước sẽ thắng.</td></tr>"
+                        + "</table></body></html>"
+        );
+        rulesText.setBounds(15, 10, 290, 480);
+        dialog.add(rulesText);
+
+        rulesPanel.add(dialog);
+
+        JButton btnBack = new JButton("OK");
+        btnBack.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btnBack.setForeground(new Color(139, 0, 0));
+        btnBack.setBounds(150, 550, 100, 40);
+        btnBack.setBackground(new Color(255, 128, 128));
+        btnBack.setForeground(Color.WHITE);
+        btnBack.setFocusPainted(false);
+        btnBack.setBorder(BorderFactory.createLineBorder(new Color(255, 128, 128), 5, true));
+        btnBack.addActionListener(e -> rulesPanel.setVisible(false));
+        rulesPanel.add(btnBack);
+
+        getLayeredPane().add(rulesPanel, JLayeredPane.POPUP_LAYER);
     }
 
     private void togglePlayer(int index) {
@@ -109,7 +174,7 @@ public class SettingUser extends JFrame {
                 playerNames[index].setForeground(Color.BLACK);
                 break;
             case 1:
-                playerNames[index].setText("CHƠI VỐI MÁY");
+                playerNames[index].setText("CHƠI VỚI MÁY");
                 playerNames[index].setEditable(false);
                 playerNames[index].setForeground(Color.GRAY);
                 break;
@@ -121,46 +186,16 @@ public class SettingUser extends JFrame {
         }
     }
 
-    private void showSettings() {
-        JOptionPane.showMessageDialog(this, "Tùy chọn cài đặt đang phát triển...");
-    }
-
-    private void showRules() {
-        JOptionPane.showMessageDialog(this, "Luật chơi đang cập nhật...");
-    }
-
     private void startGame() {
         SwingUtilities.invokeLater(() -> {
-            new Board();
-            this.dispose();
+            new Board(audioState.isMusicEnabled(), audioState.isSoundEnabled());
+            this.dispose();  // Đóng cửa sổ hiện tại sau khi bắt đầu game
         });
     }
-
-    class BackgroundPanel extends JPanel {
-        private Image backgroundImage;
-
-        public BackgroundPanel(String imagePath) {
-            try {
-                URL imageUrl = getClass().getClassLoader().getResource(imagePath);
-                if (imageUrl != null) {
-                    backgroundImage = new ImageIcon(imageUrl).getImage();
-                } else {
-                    System.out.println("Không tìm thấy ảnh: " + imagePath);
-                }
-            } catch (Exception e) {
-                System.out.println("Lỗi khi load ảnh nền: " + e.getMessage());
-            }
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (backgroundImage != null) {
-                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-            }
-        }
+    public void setAudioSettings(boolean musicEnabled, boolean soundEnabled) {
+        audioState.setMusicEnabled(musicEnabled);
+        audioState.setSoundEnabled(soundEnabled);
     }
-
     private ImageIcon loadIcon(String path, int width, int height) {
         URL imageUrl = getClass().getClassLoader().getResource(path);
         if (imageUrl != null) {
@@ -180,3 +215,4 @@ public class SettingUser extends JFrame {
         });
     }
 }
+

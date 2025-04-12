@@ -6,14 +6,21 @@ import java.awt.*;
 import java.net.URL;
 
 public class Board extends JFrame {
-    public Board() {
+    private AudioState audioState;
+    private boolean musicEnabled;
+    private boolean soundEnabled;
+
+    public Board(boolean musicEnabled, boolean soundEnabled) {
+        this.audioState = AudioState.getInstance();
+        this.musicEnabled = musicEnabled;
+        this.soundEnabled = soundEnabled;
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
         int frameWidth = 400;
         int frameHeight = 650;
 
-        // Load ảnh nền bàn cờ
         URL boardImageURL = getClass().getClassLoader().getResource("images/chessboard.png");
         if (boardImageURL == null) {
             System.out.println("Không tìm thấy ảnh chessboard!");
@@ -30,7 +37,6 @@ public class Board extends JFrame {
         setLocationRelativeTo(null);
         setLayout(null);
 
-        // Hiển thị ảnh nền
         JLabel background = new JLabel(scaledIcon) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -43,7 +49,6 @@ public class Board extends JFrame {
         background.setBounds(-8, 0, newWidth, newHeight);
         add(background);
 
-        // Font, màu, viền
         Font playerFont = new Font("Arial", Font.BOLD, 14);
         Color textColor = Color.WHITE;
         LineBorder border = new LineBorder(Color.WHITE, 2, true);
@@ -91,7 +96,6 @@ public class Board extends JFrame {
         player4.setBounds(frameWidth - labelWidth - 40, frameHeight - 100, labelWidth, labelHeight);
         background.add(player4);
 
-        // ✅ Load ảnh setting icon đúng cách
         URL settingImageURL = getClass().getClassLoader().getResource("images/setting_ic.png");
         if (settingImageURL == null) {
             System.out.println("Không tìm thấy ảnh setting_ic!");
@@ -105,13 +109,21 @@ public class Board extends JFrame {
             btnSetting.setBounds(frameWidth - settingSize - 20, 10, settingSize, settingSize);
             btnSetting.setContentAreaFilled(false);
             btnSetting.setBorderPainted(false);
+
+            btnSetting.addActionListener(e -> {
+                new AudioUI(null, audioState.isMusicEnabled(), audioState.isSoundEnabled()).setVisible(true);
+            });
+
             background.add(btnSetting);
         }
 
         setVisible(true);
+
     }
 
     public static void main(String[] args) {
-        new Board();
+        new Board(true, true);
     }
 }
+
+
