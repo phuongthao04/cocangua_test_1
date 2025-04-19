@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class SettingUser extends JFrame {
@@ -14,7 +13,7 @@ public class SettingUser extends JFrame {
     private int[] playerStates = {0, 0, 0, 0};
     private JPanel rulesPanel;
     private AudioState audioState;
-    List<PlayerInfo> players = new ArrayList<PlayerInfo>();
+    List<PlayerInfo> players = new ArrayList<>();
     private String[] iconPaths = {
             "images/img_user/icons/user.png",
             "images/img_user/icons/cpu.png",
@@ -43,7 +42,6 @@ public class SettingUser extends JFrame {
                 new Color(0xb5, 0xdd, 0xff),
                 new Color(0xcc, 0xed, 0xd1),
                 new Color(0xff, 0xa8, 0xaa),
-
                 new Color(0xff, 0xda, 0xc2)
         };
 
@@ -104,10 +102,7 @@ public class SettingUser extends JFrame {
 
         btnStart.addActionListener(e -> startGame());
 
-        btnSettings.addActionListener(e ->
-                new AudioUI(this, audioState.isMusicEnabled(), audioState.isSoundEnabled()).setVisible(true)
-        );
-
+        btnSettings.addActionListener(e -> new AudioUI(this, audioState.isMusicEnabled(), audioState.isSoundEnabled()).setVisible(true));
         btnRules.addActionListener(e -> rulesPanel.setVisible(true));
 
         createRulesPanel();
@@ -135,18 +130,10 @@ public class SettingUser extends JFrame {
                 "<html><body style='font-family:Segoe UI; font-size:11px; color:#cc0000;'>"
                         + "<h2 style='text-align:center; color:#8B0000;'>Luật chơi</h2>"
                         + "<table style='width:100%;'>"
-                        + "<tr><td><b>Tung xúc xắc:</b></td><td>Ai tung được \"1\", \"6\", cặp số giống nhau (1-1, 2-2..., 6-6) thì được tung tiếp.</td></tr>"
-                        + "<tr><td><b>Ra quân:</b></td><td>Cần tung được \"1\", \"6\", hoặc cặp số giống nhau mới ra quân.</td></tr>"
-                        + "<tr><td><b>Di chuyển quân:</b></td><td>"
-                        + "Đi đúng số bước theo kết quả xúc xắc.<br>"
-                        + "Không được vượt một quân khác nếu khoảng cách không đủ.<br>"
-                        + "\"Đá\" quân đối phương nếu đi đúng số bước vào vị trí của quân đó.</td></tr>"
-                        + "<tr><td><b>Về chuồng & vào chuồng:</b></td><td>"
-                        + "Đi hết 1 vòng về đến cửa chuồng.<br>"
-                        + "Tung số tương ứng để vào chuồng theo thứ tự từ 3→6.<br>"
-                        + "Có thể bỏ lượt nếu muốn chờ tung số cao hơn.</td></tr>"
-                        + "<tr><td><b>Thắng cuộc:</b></td><td>"
-                        + "Ai đưa đủ 4 quân vào chuồng theo thứ tự (6, 5, 4, 3) trước sẽ thắng.</td></tr>"
+                        + "<tr><td><b>Tung xúc xắc:</b></td><td>Ai tung được \"1\", \"6\", hoặc cặp số giống nhau thì được tung tiếp.</td></tr>"
+                        + "<tr><td><b>Ra quân:</b></td><td>Cần tung \"1\", \"6\" hoặc cặp số giống nhau mới ra quân.</td></tr>"
+                        + "<tr><td><b>Di chuyển quân:</b></td><td>Đi đúng số bước. Đá quân đối phương nếu vào đúng ô.</td></tr>"
+                        + "<tr><td><b>Vào chuồng:</b></td><td>Đi đúng số thứ tự 3→6 để vào chuồng. Ai đưa 4 quân vào trước là thắng.</td></tr>"
                         + "</table></body></html>"
         );
         rulesText.setBounds(15, 10, 290, 480);
@@ -156,10 +143,9 @@ public class SettingUser extends JFrame {
 
         JButton btnBack = new JButton("OK");
         btnBack.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        btnBack.setForeground(new Color(139, 0, 0));
+        btnBack.setForeground(Color.WHITE);
         btnBack.setBounds(150, 550, 100, 40);
         btnBack.setBackground(new Color(255, 128, 128));
-        btnBack.setForeground(Color.WHITE);
         btnBack.setFocusPainted(false);
         btnBack.setBorder(BorderFactory.createLineBorder(new Color(255, 128, 128), 5, true));
         btnBack.addActionListener(e -> rulesPanel.setVisible(false));
@@ -194,48 +180,39 @@ public class SettingUser extends JFrame {
     }
 
     private void checkStartButtonState() {
-        int cpuCount = 0;
-        int t = 0;
+        int inactiveCount = 0;
+        int humanCount = 0;
+
         for (int i = 0; i < 4; i++) {
-            if (playerStates[i] == 2) {
-                cpuCount++;
-            }
-            if (playerStates[i] == 0) {
-                t++;
-            }
-
+            if (playerStates[i] == 2) inactiveCount++;
+            if (playerStates[i] == 0) humanCount++;
         }
 
-        if (cpuCount >= 3||t==0) {
-            btnStart.setEnabled(false);
-        } else {
-            btnStart.setEnabled(true);
-        }
+        btnStart.setEnabled(!(inactiveCount >= 3 || humanCount == 0));
     }
 
     private void startGame() {
-        players.clear();  // Xóa danh sách người chơi trước khi thêm mới
+        players.clear();
 
-        // Đặt tên rõ ràng cho từng màu
-        Color bluePlayer = new Color(66, 133, 244);    // Người chơi 1
-        Color greenPlayer = new Color(52, 168, 83);    // Người chơi 2
-        Color redPlayer = new Color(219, 68, 55);      // Người chơi 3
-        Color orangePlayer = new Color(250, 144, 58);  // Người chơi 4
-
-        Color[] playerColors = { bluePlayer, greenPlayer, redPlayer, orangePlayer };
+        Color[] playerColors = {
+                new Color(0xb5, 0xdd, 0xff),
+                new Color(0xcc, 0xed, 0xd1),
+                new Color(0xff, 0xa8, 0xaa),
+                new Color(0xff, 0xda, 0xc2)
+        };
 
         for (int i = 0; i < 4; i++) {
-            // Kiểm tra chỉ số hợp lệ trước khi lấy dữ liệu
-            if (i >= playerStates.length || i >= playerNames.length) {
-                continue;
-            }
+            if (i >= playerStates.length || i >= playerNames.length) continue;
 
             String name = playerNames[i].getText().trim();
-            boolean isCPU = playerStates[i] == 2;
-
             players.add(new PlayerInfo(name, playerStates[i], playerColors[i]));
         }
 
+        // Gọi lớp GameEngine để khởi tạo logic game
+        GameEngine gameEngine = new GameEngine();
+        gameEngine.initializeGame(players);
+
+        // Giao diện chính của bàn cờ
         new Board(audioState.isMusicEnabled(), audioState.isSoundEnabled(), players);
         this.dispose();
     }

@@ -83,12 +83,12 @@ public class Board extends JFrame {
         for (int i = 0; i < players.size(); i++) {
             PlayerInfo player = players.get(i);
 
-            if (player.getStatus() == 2) {
-                JLabel label = new JLabel(); // Không hiển thị gì với bot
+            if (player.getStatus() == 2) {  // Không hiển thị với bot
+                JLabel label = new JLabel();
                 label.setOpaque(false);
                 label.setBounds(positions[i][0], positions[i][1], labelWidth, labelHeight);
                 background.add(label);
-            } else {
+            } else {  // Hiển thị tên người chơi
                 JLabel label = new JLabel(player.getName(), SwingConstants.CENTER);
                 label.setFont(playerFont);
                 label.setForeground(textColor);
@@ -98,17 +98,17 @@ public class Board extends JFrame {
                 label.setBounds(positions[i][0], positions[i][1], labelWidth, labelHeight);
                 background.add(label);
 
-                // === Khởi tạo quân cờ tương ứng với màu ===
+                // Khởi tạo quân cờ theo màu của người chơi
                 Color color = player.getPlayerColor();
 
-                if (color.equals(new Color(219, 68, 55))) {
-                    initRedPawns();
-                } else if (color.equals(new Color(250, 144, 58))) {
-                    initOrangePawns();
-                } else if (color.equals(new Color(52, 168, 83))) {
-                    initGreenPawns();
-                } else if (color.equals(new Color(66, 133, 244))) {
-                    initBluePawns();
+                if (color.equals(new Color(0xff, 0xa8, 0xaa))) {
+                    initRedPawns();  // Gán màu đỏ cho quân của người chơi
+                } else if (color.equals(new Color(0xff, 0xda, 0xc2))) {
+                    initOrangePawns();  // Gán màu cam cho quân của người chơi
+                } else if (color.equals(new Color(0xcc, 0xed, 0xd1))) {
+                    initGreenPawns();  // Gán màu xanh lá cho quân của người chơi
+                } else if (color.equals(new Color(0xb5, 0xdd, 0xff))) {
+                    initBluePawns();  // Gán màu xanh dương cho quân của người chơi
                 }
             }
         }
@@ -135,6 +135,7 @@ public class Board extends JFrame {
 
         setVisible(true);
     }
+
 
     private void initRedPawns() {
         int[][] redStartPositions = {
@@ -190,6 +191,98 @@ public class Board extends JFrame {
             List<PlayerInfo> players = new ArrayList<>(); // Đây là ví dụ, hãy thay đổi tùy vào nhu cầu
             new Board(true, true, players);  // Khởi tạo Board với các tham số bạn muốn cho bot
         });
+    }
+    // Lấy vị trí bắt đầu của người chơi theo màu
+    public int getStartPosition(PlayerInfo player) {
+        Color color = player.getPlayerColor();
+        if (color.equals(new Color(219, 68, 55))) { // Đỏ
+            return 0;
+        } else if (color.equals(new Color(250, 144, 58))) { // Cam
+            return 13;
+        } else if (color.equals(new Color(52, 168, 83))) { // Xanh lá
+            return 26;
+        } else if (color.equals(new Color(66, 133, 244))) { // Xanh dương
+            return 39;
+        }
+        return -1;
+    }
+
+    // Lấy vị trí kết thúc của người chơi theo màu
+    public int getEndPosition(PlayerInfo player) {
+        Color color = player.getPlayerColor();
+        if (color.equals(new Color(219, 68, 55))) { // Đỏ
+            return 50;
+        } else if (color.equals(new Color(250, 144, 58))) { // Cam
+            return 11;
+        } else if (color.equals(new Color(52, 168, 83))) { // Xanh lá
+            return 24;
+        } else if (color.equals(new Color(66, 133, 244))) { // Xanh dương
+            return 37;
+        }
+        return -1;
+    }
+
+    // Lấy tọa độ X theo chỉ số vị trí đường đi chung
+    public int getX(int positionIndex) {
+        // Giả sử bạn có bản đồ game và quy định tọa độ tương ứng với từng vị trí
+        // Đây là ví dụ, bạn nên thay bằng bản đồ thật
+        int[] xCoords = new int[52];
+        // TODO: điền giá trị thực tế
+        return xCoords[positionIndex % xCoords.length];
+    }
+
+    public int getY(int positionIndex) {
+        int[] yCoords = new int[52];
+        // TODO: điền giá trị thực tế
+        return yCoords[positionIndex % yCoords.length];
+    }
+
+    // Trả về tọa độ X chuồng tương ứng với quân cờ và màu
+    public int getBaseX(PlayerInfo player, Pawn_UI pawn) {
+        Color color = player.getPlayerColor();
+        int index = getPawnIndex(player, pawn);
+
+        switch (color.getRGB()) {
+            case -13986041: // RED
+                return new int[]{48, 84, 48, 84}[index];
+            case -3443082: // ORANGE
+                return new int[]{271, 308, 271, 308}[index];
+            case -13447813: // GREEN
+                return new int[]{269, 308, 269, 308}[index];
+            case -12425284: // BLUE
+                return new int[]{48, 86, 48, 86}[index];
+        }
+        return 0;
+    }
+
+    public int getBaseY(PlayerInfo player, Pawn_UI pawn) {
+        Color color = player.getPlayerColor();
+        int index = getPawnIndex(player, pawn);
+
+        switch (color.getRGB()) {
+            case -13986041: // RED
+                return new int[]{438, 438, 476, 476}[index];
+            case -3443082: // ORANGE
+                return new int[]{438, 438, 476, 476}[index];
+            case -13447813: // GREEN
+                return new int[]{218, 218, 254, 254}[index];
+            case -12425284: // BLUE
+                return new int[]{218, 218, 254, 254}[index];
+        }
+        return 0;
+    }
+
+    // Lấy chỉ số của quân trong danh sách
+    private int getPawnIndex(PlayerInfo player, Pawn_UI pawn) {
+        Color color = player.getPlayerColor();
+        List<Pawn_UI> list = switch (color.getRGB()) {
+            case -13986041 -> redPawns;
+            case -3443082 -> orangePawns;
+            case -13447813 -> greenPawns;
+            case -12425284 -> bluePawns;
+            default -> new ArrayList<>();
+        };
+        return list.indexOf(pawn);
     }
 
 }
