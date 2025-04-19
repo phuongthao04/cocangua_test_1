@@ -216,30 +216,30 @@ public class SettingUser extends JFrame {
     private void startGame() {
         players.clear();  // Xóa danh sách người chơi trước khi thêm mới
 
-        Color[] playerColors = {
-                new Color(66, 133, 244),
-                new Color(52, 168, 83),
-                new Color(219, 68, 55),
-                new Color(250, 144, 58)
-        };
+        // Đặt tên rõ ràng cho từng màu
+        Color bluePlayer = new Color(66, 133, 244);    // Người chơi 1
+        Color greenPlayer = new Color(52, 168, 83);    // Người chơi 2
+        Color redPlayer = new Color(219, 68, 55);      // Người chơi 3
+        Color orangePlayer = new Color(250, 144, 58);  // Người chơi 4
+
+        Color[] playerColors = { bluePlayer, greenPlayer, redPlayer, orangePlayer };
 
         for (int i = 0; i < 4; i++) {
+            // Kiểm tra chỉ số hợp lệ trước khi lấy dữ liệu
+            if (i >= playerStates.length || i >= playerNames.length) {
+                continue;
+            }
+
             String name = playerNames[i].getText().trim();
             boolean isCPU = playerStates[i] == 2;
-
-
-            // Kiểm tra để tránh lỗi vượt qua chỉ số
-            if (i >= playerStates.length || i >= playerNames.length) {
-                continue;  // Bỏ qua nếu có lỗi chỉ số
-            }
 
             players.add(new PlayerInfo(name, playerStates[i], playerColors[i]));
         }
 
-
         new Board(audioState.isMusicEnabled(), audioState.isSoundEnabled(), players);
         this.dispose();
     }
+
     public void setAudioSettings(boolean musicEnabled, boolean soundEnabled) {
         audioState.setMusicEnabled(musicEnabled);
         audioState.setSoundEnabled(soundEnabled);
